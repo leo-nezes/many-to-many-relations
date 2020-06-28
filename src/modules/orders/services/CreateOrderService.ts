@@ -42,9 +42,19 @@ class CreateOrderService {
       productsIds,
     );
 
+    const newProductsWithRenamedProperty = productsWithPrices.map(product => {
+      const renamedProperty = {
+        product_id: product.id,
+        ...product,
+      };
+
+      delete renamedProperty.id;
+      return renamedProperty;
+    });
+
     const order = await this.ordersRepository.create({
       customer,
-      products: productsWithPrices,
+      products: newProductsWithRenamedProperty,
     });
 
     return order;

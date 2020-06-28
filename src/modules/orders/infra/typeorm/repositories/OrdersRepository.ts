@@ -12,10 +12,6 @@ class OrdersRepository implements IOrdersRepository {
   }
 
   public async create({ customer, products }: ICreateOrderDTO): Promise<Order> {
-    products.map(product => {
-      console.log(product);
-    });
-
     const order = await this.ormRepository.create({
       customer,
       orders_products: products,

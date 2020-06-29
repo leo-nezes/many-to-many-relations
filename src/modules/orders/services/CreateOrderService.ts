@@ -38,11 +38,27 @@ class CreateOrderService {
       return id;
     });
 
-    const productsWithPrices = await this.productsRepository.findAllById(
+    const productsFromDatabase = await this.productsRepository.findAllById(
       productsIds,
     );
 
-    const newProductsWithRenamedProperty = productsWithPrices.map(product => {
+    productsFromDatabase.forEach(productFromDB => {
+      const productFromCustomer = products.find(
+        productFind => productFind.id === productFromDB.id,
+      );
+
+      if (!productFromCustomer)
+        throw new AppError(
+          'Invalid product id. Try to create a order with a valid product.',
+        );
+
+      if (productFromCustomer?.quantity > productFromDB.quantity)
+        throw new AppError(
+          `Product quantity informed is higher than the avaliable. Product id: ${productFromCustomer?.id}`,
+        );
+    });
+
+    const newProductsWithRenamedProperty = productsFromDatabase.map(product => {
       const renamedProperty = {
         product_id: product.id,
         ...product,
@@ -56,6 +72,21 @@ class CreateOrderService {
       customer,
       products: newProductsWithRenamedProperty,
     });
+
+    const updateProductsQuantity = productsFromDatabase.map(productFromDB => {
+      const findIndex = products.findIndex(
+        findIndexProduct => findIndexProduct.id === productFromDB.id,
+      );
+
+      const productWithNewQuantity = {
+        id: productFromDB.id,
+        quantity: productFromDB.quantity - products[findIndex].quantity,
+      };
+
+      return productWithNewQuantity;
+    });
+
+    await this.productsRepository.updateQuantity(updateProductsQuantity);
 
     return order;
   }

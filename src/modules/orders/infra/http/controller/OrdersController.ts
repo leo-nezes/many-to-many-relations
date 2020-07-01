@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { container } from 'tsyringe';
+import { classToClass } from 'class-transformer';
 
 import CreateOrderService from '@modules/orders/services/CreateOrderService';
 import FindOrderService from '@modules/orders/services/FindOrderService';
@@ -13,7 +14,7 @@ export default class OrdersController {
 
     const order = await findOrder.execute({ id });
 
-    return response.json(order);
+    return response.json(classToClass(order));
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
@@ -23,6 +24,6 @@ export default class OrdersController {
 
     const orders = await createOrder.execute({ customer_id, products });
 
-    return response.json(orders);
+    return response.json(classToClass(orders));
   }
 }

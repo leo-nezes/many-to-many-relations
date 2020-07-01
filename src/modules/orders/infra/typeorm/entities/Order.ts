@@ -8,6 +8,7 @@ import {
   OneToMany,
   Column,
 } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 
 import Customer from '@modules/customers/infra/typeorm/entities/Customer';
 import OrdersProducts from '@modules/orders/infra/typeorm/entities/OrdersProducts';
@@ -18,9 +19,10 @@ class Order {
   id: string;
 
   @Column()
+  @Exclude()
   customer_id: string;
 
-  @ManyToOne(() => Customer)
+  @ManyToOne(() => Customer, { eager: true })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
@@ -28,12 +30,15 @@ class Order {
     cascade: true,
     eager: true,
   })
+  @Expose({ name: 'order_products' })
   orders_products: OrdersProducts[];
 
   @CreateDateColumn()
+  @Exclude()
   created_at: Date;
 
   @UpdateDateColumn()
+  @Exclude()
   updated_at: Date;
 }
 
